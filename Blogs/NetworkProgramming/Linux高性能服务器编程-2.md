@@ -110,5 +110,70 @@ const char* inet_ntop(int af, const void* src, char* dst, socklen_t cnt);
 ```
 
 #### 5.2 创建、命名、监听socket，连接相关
+- **创建**
+```cpp
+#include <sys/type.h>
+#include <sys/socket.h>
+
+/*
+    domain: PF_INET, PF_INET6, PF_UNIX
+    type: SOCK_STREAM, SOCK_DGRAM,
+          SOCK_NONBLOCK(非阻塞), SOCK_CLOEXEC(在fork后的子进程中关闭该sock)
+    protocol: 一般置为0
+*/
+int socket(int domain, int type, in protocol);
+
+```
+
+- **命名**
+```cpp
+#include <sys/type.h>
+#include <sys/socket.h>
+
+// 成功返回0，失败返回-1，设置errno
+// EACCES 被绑定的地址是受保护的地址（普通用户绑定知名服务端口）
+// EADDRINUSE 被绑定的地址正在使用中
+int bind(int sockfd, const struct sockaddr* my_addr, sockelen_t addrlen);
+```
+
+- **监听**
+```cpp
+#include <sys/socket.h>
+
+// backlog: 提示内核监听队列的最大长度，若超过，则不再受理
+int listen(int sockfd, int backlog);
+```
+
+- **接受连接**
+
+```cpp
+#include <sys/type.h>
+#include <sys/socket.h>
+
+// 成功返回sock，失败返回-1，设置errno
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+```
+
+- **发起、关闭连接**
+
+```cpp
+#include <sys/type.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+// 成功返回sock，失败返回-1，设置errno
+// ECONNREFUSED 目标端口不存在
+// ETIMEDOUT 连接超时
+int connect(int sockfd, const struct sockaddr* serv_addr, socklen_t addrlen);
+// 引用次数减1
+int close(int fd);
+// 无论如何关闭连接
+// howto：
+//          SHUT_RD
+//          SHUT_WR
+//          SHUT_RDWR
+// 成功返回0，失败返回-1并设置errno
+int shutdown(int sockfd, int howto);
+```
 
 #### 5.3 数据读写
