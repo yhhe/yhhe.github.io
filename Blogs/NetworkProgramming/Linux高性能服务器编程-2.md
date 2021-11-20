@@ -1,5 +1,10 @@
 ## Linux高性能服务器编程-2
 
+**主要内容**
+- Socket地址API
+- 创建使用socket
+- 数据读写API
+
 ### 5. Linux网络编程基础API
 #### 5.1 Socket地址API
 - **字节序**
