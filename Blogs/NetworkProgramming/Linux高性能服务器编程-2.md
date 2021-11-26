@@ -177,3 +177,121 @@ int shutdown(int sockfd, int howto);
 ```
 
 #### 5.3 数据读写
+- **TCP数据读写**
+```cpp
+#include <sys/types.h>
+#include <sys/socket.h>
+
+//
+// buf, len: 缓冲区位置和大小
+// flags: 通常设置为0
+// recv：成功时返回读取数据的长度，连接关闭返回0，出错返回-1并设置errno
+// send：成功返回写入数据的长度，失败返回-1并设置errno
+ssize_t recv(int sockfd, void *buf, size_t len, int flags);
+ssize_t send(int sockfd, const void *buf, size_t len, int flags);
+```
+
+- **UDP数据读写**
+```cpp
+#include <sys/types.h>
+#include <sys/socket.h>
+
+// 也可用于面向连接的socket，只要将最后两个参数都设置为NULL以忽略发送端/接收端的socket地址
+ssize_t recvfrom(int sockfd, void* buf, size_t len, int flags
+                    , struct sockaddr* src_addr, sockelen_t* addrlen);
+ssize_t sendto(int sockfd, const void* buf, size_t len, int flags
+                    , const struct sockaddr* dest_addr, socklen_t addrlen);
+
+```
+
+- **通用数据读写**
+```cpp
+#include <sys/socket.h>
+
+ssize_t recvmsg(int sockfd, struct msghdr* msg, int flags);
+ssize_t sendmsg(int sockfd, struct msghdr* msg, int flags);
+
+// msghdr
+struct msghdr{
+    void* msg_name;                 // socket地址
+    socklen_t msg_namelen;          // socket地址的长度
+    struct iovec* msg_iov;          // 分散的内存块
+    int msg_iovlen;                 // 分散内存块的数量
+    void* msg_control;              // 指向辅助数据的起始位置
+    socklen_t msg_controlllen;      // 辅助数据的大小
+    int msg_flags;                  // 复制函数中的flags参数，在调用过程中更新
+};
+
+struct iovec{
+    void *iov_base;
+    size_t iov_lem;
+};
+```
+
+- **带外标记**
+```cpp
+#include <sys/socket.h>
+
+// 判断sockfd是否处于带外标记
+int sockatmark(int sockfd);
+```
+
+- **地址信息函数**
+```cpp
+#include <sys/socket.h>
+
+int getsockname(int sockfd, struct sockaddr* address, socklen_t* address_len);
+int getpeername(int sockfd, struct sockaddr* address, socklen_t* address_len);
+```
+
+
+#### 5.4 网络信息
+```cpp
+#include <netdb.h>
+
+// 获取主机的完整信息（不可重入）
+// 通常先在/etc/hosts中查找，未找到访问DNS服务器
+struct hostent* gethostbyname(const char* name);
+struct hostent* gethostbyaddr(const void* addr, size_t len, int type);
+
+struct hostent{
+    char* h_name;
+    char** h_aliases;
+    int h_addrtype;
+    int h_length;
+    char** h_addr_list;
+};
+
+// 获取服务的完整信息（不可重入）
+// 读取/etc/services获取服务的信息
+struct servent* getservbyname(const char* name, const char* proto);
+struct servent* getservbyport(int port, const char* proto);
+
+struct servent{
+    char* s_name;               // 服务名称
+    char** s_aliases;           // 服务的别名列表
+    int s_port;                 // 端口号
+    char* s_proto;              // 服务类型，通常TCP或者UDP
+};
+
+// 
+int getaddrinfo(const char* hostname, const char* service
+                , const struct addrinfo* hints, stuct addrinfo* result);
+void freeaddrinfo(struct addrinfo* res);
+
+struct addrinfo{
+    int ai_flags;
+    int ai_family;
+    int ai_socktype;
+    int ai_protocol;
+    socklen_t ai_addrlen;
+    char* ai_canonname;
+    struct sockaddr* ai_addr;
+    struct addrinfo* ai_next;
+};
+
+//
+int getnameinfo(const struct sockaddr* sockaddr, socklen_t addrlen, char* host
+                , socklen_t hostlen, char* serv, socklen_t servlen, inf flags);
+const char* gai_strerror(int error);
+```
