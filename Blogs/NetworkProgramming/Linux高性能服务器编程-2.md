@@ -4,6 +4,8 @@
 - Socket地址API
 - 创建使用socket
 - 数据读写API
+- pipe函数
+- dup，dup2
 
 ### 5. Linux网络编程基础API
 #### 5.1 Socket地址API
@@ -295,3 +297,42 @@ int getnameinfo(const struct sockaddr* sockaddr, socklen_t addrlen, char* host
                 , socklen_t hostlen, char* serv, socklen_t servlen, inf flags);
 const char* gai_strerror(int error);
 ```
+
+### 6. 高级I/O函数
+#### 6.1 pipe函数
+创建一个管道，实现进程间通信。
+
+默认情况下，文件描述符是阻塞的。如果用read读取一个空管道或者使用write写入一个满的管道，进程将被阻塞。
+
+若写端关闭，read返回0。若读端关闭，write操作将失败，返回SIGPIPE。
+
+传输的数据是字节流。
+
+socketpair可以创建双向管道。
+
+```cpp
+#include <unistd.h>
+
+int pipe(int fd[2]);
+
+#include <sys/types.h>
+#include <sys/socket.h>
+// protocol 必须是 AF_UNIX
+int socketpair(int domain, int type, in protocol, int fd[2]);
+```
+
+#### 6.2 dup和dup2
+将辨准输入输出重定向
+
+```cpp
+#include <unistd.h>
+
+// 创建一个新的文件描述符，该新文件描述符和fd指向相同，且总返回当前可用的最小整数值
+int dup(int fd);
+// 与上相似，返回第一个不小于fd2的文件描述符
+int dup2(int fd1, int fd2);
+
+// 失败时返回-1并设置errno
+```
+
+#### 6.3 readv和writev
