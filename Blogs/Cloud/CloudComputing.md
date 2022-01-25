@@ -29,3 +29,14 @@ SOA构建层   | 服务接口，服务注册，服务查找，服务访问，服
 物理资源层  ｜  计算机，存储器，网络设施，数据库，软件
 
 ```
+
+
+### 第二章 Google云计算原理与应用
+- Google文件系统GFS
+    - 系统架构
+        - 分为Client，Master，和Chunk Server
+        - 数据存储在Chunk Server上
+        - 首先访问Master，获取Chunk Server信息，而后访问Chunk Server获取数据
+        - 特点：中心服务器模式，不缓存数据，在用户态下实现，只提供专用接口
+        ![F2-1 GFS的系统架构](./Resource/F2-1-GFS的系统架构.png)
+    - 容错机制
